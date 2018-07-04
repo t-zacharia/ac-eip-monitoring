@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+    <http:listener-config name="ac-cloudhub-eip-monitoring-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="ac-cloudhub-eip-monitoring-config" raml="ac-cloudhub-eip-monitoring.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<api-gateway:autodiscovery apiId="15475566" doc:name="API Autodiscovery" doc:id="f69dc37e-d480-4037-b5cd-5c8f88923d4b" flowRef="ac-cloudhub-eip-monitoring-main" />
+	<flow name="ac-cloudhub-eip-monitoring-main">
+        <http:listener config-ref="ac-cloudhub-eip-monitoring-httpListenerConfig" path="/eip/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="ac-cloudhub-eip-monitoring-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="ac-cloudhub-eip-monitoring-console">
+        <http:listener config-ref="ac-cloudhub-eip-monitoring-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="ac-cloudhub-eip-monitoring-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\dashboard\:ac-cloudhub-eip-monitoring-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="4e808a88-aa87-4478-8737-574d0714ea3d">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  data: [
+    {
+      env: {
+        id: "374b1397-0fa0-4611-bea7-1c84ed78fa60",
+        name: "Sandbox",
+        isProduction: false
+      },
+      events: {
+        "1530114273505": 2,
+        "1530121473505": 6,
+        "1530128673505": 0,
+        "1530135873505": 0,
+        "1530143073505": 0,
+        "1530150273505": 0,
+        "1530157473505": 0,
+        "1530164673505": 0,
+        "1530171873505": 0,
+        "1530179073505": 0,
+        "1530186273505": 0,
+        "1530193473505": 0
+      },
+      workerStatistics: [
+        {
+          id: "i-0d6e37508ad8320e8",
+          statistics: {
+            diskReadBytes: {
+              "1530114240000": -1,
+              "1530121440000": 0,
+              "1530128640000": 0,
+              "1530135840000": 0,
+              "1530143040000": 0,
+              "1530150240000": 0,
+              "1530157440000": 0,
+              "1530164640000": 0,
+              "1530171840000": 0,
+              "1530179040000": 0,
+              "1530186240000": 0,
+              "1530193440000": 0
+            },
+            networkIn: {
+              "1530114240000": -1,
+              "1530121440000": 202153.95,
+              "1530128640000": 9936.74,
+              "1530135840000": 9582.97,
+              "1530143040000": 9442.77,
+              "1530150240000": 9112.59,
+              "1530157440000": 9393.21,
+              "1530164640000": 9099.19,
+              "1530171840000": 9122.55,
+              "1530179040000": 9544.61,
+              "1530186240000": 9122.18,
+              "1530193440000": 9866.96
+            },
+            memoryTotalUsed: {
+              "1530114240000": -1,
+              "1530121440000": 106213024.95,
+              "1530128640000": 111269894.67,
+              "1530135840000": 111579623.53,
+              "1530143040000": 111031212,
+              "1530150240000": 111792112.93,
+              "1530157440000": 111903238.73,
+              "1530164640000": 112190798.27,
+              "1530171840000": 112760673.33,
+              "1530179040000": 112332098.13,
+              "1530186240000": 112797855.73,
+              "1530193440000": 112234012.2
+            },
+            memoryPercentageUsed: {
+              "1530114240000": -1,
+              "1530121440000": 21.21,
+              "1530128640000": 22.22,
+              "1530135840000": 22.28,
+              "1530143040000": 22.17,
+              "1530150240000": 22.32,
+              "1530157440000": 22.35,
+              "1530164640000": 22.4,
+              "1530171840000": 22.52,
+              "1530179040000": 22.43,
+              "1530186240000": 22.53,
+              "1530193440000": 22.41
+            },
+            cpu: {
+              "1530114240000": -1,
+              "1530121440000": 1.9,
+              "1530128640000": 1.13,
+              "1530135840000": 1.17,
+              "1530143040000": 1.18,
+              "1530150240000": 1.23,
+              "1530157440000": 1.11,
+              "1530164640000": 1.17,
+              "1530171840000": 1.11,
+              "1530179040000": 1.12,
+              "1530186240000": 1.1,
+              "1530193440000": 1.12
+            },
+            memoryTotalMax: 500760576,
+            diskWriteBytes: {
+              "1530114240000": -1,
+              "1530121440000": 0,
+              "1530128640000": 0,
+              "1530135840000": 0,
+              "1530143040000": 0,
+              "1530150240000": 0,
+              "1530157440000": 0,
+              "1530164640000": 0,
+              "1530171840000": 0,
+              "1530179040000": 0,
+              "1530186240000": 0,
+              "1530193440000": 0
+            },
+            networkOut: {
+              "1530114240000": -1,
+              "1530121440000": 21227.32,
+              "1530128640000": 22399.75,
+              "1530135840000": 21797.38,
+              "1530143040000": 21417.24,
+              "1530150240000": 21180.65,
+              "1530157440000": 21206.6,
+              "1530164640000": 21082.3,
+              "1530171840000": 21156.23,
+              "1530179040000": 21756.87,
+              "1530186240000": 20870.03,
+              "1530193440000": 21680.52
+            }
+          },
+          ipAddress: "35.183.23.178"
+        }, 
+        {
+          id: "i-07eebe44d55eef71c",
+          statistics: {
+            diskReadBytes: {
+              "1530114240000": -1,
+              "1530121440000": -1,
+              "1530128640000": -1,
+              "1530135840000": -1,
+              "1530143040000": -1,
+              "1530150240000": -1,
+              "1530157440000": -1,
+              "1530164640000": -1,
+              "1530171840000": -1,
+              "1530179040000": -1,
+              "1530186240000": -1,
+              "1530193440000": -1
+            },
+            networkIn: {
+              "1530114240000": -1,
+              "1530121440000": -1,
+              "1530128640000": -1,
+              "1530135840000": -1,
+              "1530143040000": -1,
+              "1530150240000": -1,
+              "1530157440000": -1,
+              "1530164640000": -1,
+              "1530171840000": -1,
+              "1530179040000": -1,
+              "1530186240000": -1,
+              "1530193440000": -1
+            },
+            memoryTotalUsed: {
+              "1530114240000": -1,
+              "1530121440000": -1,
+              "1530128640000": -1,
+              "1530135840000": -1,
+              "1530143040000": -1,
+              "1530150240000": -1,
+              "1530157440000": -1,
+              "1530164640000": -1,
+              "1530171840000": -1,
+              "1530179040000": -1,
+              "1530186240000": -1,
+              "1530193440000": -1
+            },
+            memoryPercentageUsed: {
+              "1530114240000": -1,
+              "1530121440000": -1,
+              "1530128640000": -1,
+              "1530135840000": -1,
+              "1530143040000": -1,
+              "1530150240000": -1,
+              "1530157440000": -1,
+              "1530164640000": -1,
+              "1530171840000": -1,
+              "1530179040000": -1,
+              "1530186240000": -1,
+              "1530193440000": -1
+            },
+            cpu: {
+              "1530114240000": -1,
+              "1530121440000": -1,
+              "1530128640000": -1,
+              "1530135840000": -1,
+              "1530143040000": -1,
+              "1530150240000": -1,
+              "1530157440000": -1,
+              "1530164640000": -1,
+              "1530171840000": -1,
+              "1530179040000": -1,
+              "1530186240000": -1,
+              "1530193440000": -1
+            },
+            memoryTotalMax: -1,
+            diskWriteBytes: {
+              "1530114240000": -1,
+              "1530121440000": -1,
+              "1530128640000": -1,
+              "1530135840000": -1,
+              "1530143040000": -1,
+              "1530150240000": -1,
+              "1530157440000": -1,
+              "1530164640000": -1,
+              "1530171840000": -1,
+              "1530179040000": -1,
+              "1530186240000": -1,
+              "1530193440000": -1
+            },
+            networkOut: {
+              "1530114240000": -1,
+              "1530121440000": -1,
+              "1530128640000": -1,
+              "1530135840000": -1,
+              "1530143040000": -1,
+              "1530150240000": -1,
+              "1530157440000": -1,
+              "1530164640000": -1,
+              "1530171840000": -1,
+              "1530179040000": -1,
+              "1530186240000": -1,
+              "1530193440000": -1
+            }
+          },
+          ipAddress: "35.182.7.8"
+        }
+      ]
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>

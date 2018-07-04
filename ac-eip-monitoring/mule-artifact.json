@@ -1,0 +1,23 @@
+{
+  "configs": [
+    "ac-cloudhub-eip-monitoring.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "ac-eip-monitoring",
+  "minMuleVersion": "4.1.2",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "api/ac-cloudhub-eip-monitoring.raml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}
