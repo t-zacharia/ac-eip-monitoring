@@ -20,12 +20,29 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.mule.tools.maven</groupId>
-				<artifactId>mule-maven-plugin</artifactId>
-				<version>${mule.maven.plugin.version}</version>
-				<extensions>true</extensions>
-				<configuration>
-				</configuration>
+			    <groupId>org.mule.tools.maven</groupId>
+			    <artifactId>mule-maven-plugin</artifactId>
+			    <version>${mule.maven.plugin.version}</version>
+			    <extensions>true</extensions>
+			    <configuration>
+			        <cloudHubDeployment>
+			            <uri>https://anypoint.mulesoft.com</uri>
+			            <muleVersion>${app.runtime}</muleVersion>
+			            <username>${user}</username>
+			            <password>${pwd}</password>
+			            <applicationName>ac-eip-monitoring</applicationName>
+			            <environment>Sandbox</environment>
+			            <workers>1</workers>
+			            <workerType>MICRO</workerType>
+			            <region>eu-central-1</region>
+			            <properties>
+			                <anypoint.platform.client_id>e363d2762d67420981381da2977c6560</anypoint.platform.client_id>
+			                <anypoint.platform.client_secret>11EB1E33Ad69458f969C9241CE947a90</anypoint.platform.client_secret>
+			                <api.id>15475566</api.id>
+			            </properties>
+			        </cloudHubDeployment>
+			    <classifier>mule-application</classifier>
+			    </configuration>
 			</plugin>
 		</plugins>
 	</build>
