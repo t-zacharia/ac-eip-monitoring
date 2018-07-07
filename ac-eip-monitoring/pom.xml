@@ -30,7 +30,7 @@
 			            <muleVersion>${app.runtime}</muleVersion>
 			            <username>${user}</username>
 			            <password>${pwd}</password>
-			            <applicationName>ac-eip-monitoring</applicationName>
+			            <applicationName>ac-eip-monitoring-${region}</applicationName>
 			            <environment>Sandbox</environment>
 			            <workers>1</workers>
 			            <workerType>MICRO</workerType>
